@@ -34,6 +34,27 @@ def run_tests():
     )
     return proc.returncode == 0, (proc.stdout + "\n" + proc.stderr)[-5000:]
 
+def apply_validate_or_rollback(
+    candidate_source,
+    original_source,
+    target_path=TARGET,
+    test_runner=run_tests,
+):
+    """Apply a candidate, validate it, and restore the original on failure."""
+    target_path = Path(target_path)
+    target_path.write_text(candidate_source, encoding="utf-8")
+
+    try:
+        passed, output = test_runner()
+    except Exception:
+        target_path.write_text(original_source, encoding="utf-8")
+        raise
+
+    if not passed:
+        target_path.write_text(original_source, encoding="utf-8")
+
+    return passed, output
+
 def extract_function_region(source: str) -> str:
     pattern = re.compile(
         r"(?ms)^def safe_divide\(a, b\):\n(.*?)^\s*# REPAIR_X_FUNCTION_END\s*$"
@@ -139,8 +160,11 @@ def main():
             body = ask_openai_for_patch(client, current_source, output, attempt)
             validate_patch_syntax(body)
             candidate = replace_function_region(current_source, body)
-            TARGET.write_text(candidate, encoding="utf-8")
-            passed, output = run_tests()
+            passed, output = apply_validate_or_rollback(
+                candidate,
+                original,
+                target_path=TARGET,
+            )
             log_event(history, stage="validation", attempt=attempt,
                       tests_passed=passed, patch_body=body, output=output)
             if passed:
