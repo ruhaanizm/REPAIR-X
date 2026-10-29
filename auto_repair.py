@@ -218,6 +218,9 @@ def repair_incident(client, model, scenario_name, evidence):
 
     print(f"\n=== GENERATING PATCH: {scenario_name} ===")
 
+    
+    patch_source = "ai"
+
     try:
         body = request_patch(client, model, scenario, evidence)
         candidate = replace_function_body(
@@ -228,10 +231,12 @@ def repair_incident(client, model, scenario_name, evidence):
             f"WARNING: AI patch rejected ({type(exc).__name__}: {exc}). "
             "Using the predefined scenario fallback."
         )
+        patch_source = "fallback"
         body = scenario["example"]
         candidate = replace_function_body(
             original, scenario["function"], body
         )
+
 
     print("Candidate patch:")
     print(body)
@@ -255,6 +260,7 @@ def repair_incident(client, model, scenario_name, evidence):
             evidence["traceback"],
         )["fault_category"],
         "repair_success": passed,
+        "patch_source": patch_source,
         "patch": body,
     }
 
