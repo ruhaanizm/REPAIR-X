@@ -4,3 +4,4 @@ __pycache__/
 .pytest_cache/
 *.pyc
 repair_history.json
+auto_repair_report.json
