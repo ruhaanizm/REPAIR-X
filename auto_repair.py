@@ -13,7 +13,13 @@ import traceback
 from pathlib import Path
 
 from dotenv import load_dotenv
-from openai import OpenAI
+from openai import (
+    OpenAI,
+    APIConnectionError,
+    APITimeoutError,
+    APIStatusError,
+    RateLimitError,
+)
 
 from incident_classifier import classify_fault
 
@@ -219,7 +225,9 @@ def repair_incident(client, model, scenario_name, evidence):
     print(f"\n=== GENERATING PATCH: {scenario_name} ===")
 
     
+    
     patch_source = "ai"
+    fallback_reason = None
 
     try:
         body = request_patch(client, model, scenario, evidence)
@@ -227,6 +235,7 @@ def repair_incident(client, model, scenario_name, evidence):
             original, scenario["function"], body
         )
     except (SyntaxError, ValueError) as exc:
+        fallback_reason = f"invalid_ai_patch: {type(exc).__name__}"
         print(
             f"WARNING: AI patch rejected ({type(exc).__name__}: {exc}). "
             "Using the predefined scenario fallback."
@@ -236,19 +245,66 @@ def repair_incident(client, model, scenario_name, evidence):
         candidate = replace_function_body(
             original, scenario["function"], body
         )
+    except (
+        APIConnectionError,
+        APITimeoutError,
+        APIStatusError,
+        RateLimitError,
+    ) as exc:
+        fallback_reason = f"api_error: {type(exc).__name__}"
+        print(
+            f"WARNING: AI request failed ({type(exc).__name__}: {exc}). "
+            "Trying the predefined scenario fallback."
+        )
+        patch_source = "fallback"
+        body = scenario["example"]
+        candidate = replace_function_body(
+            original, scenario["function"], body
+        )
+
 
 
     print("Candidate patch:")
     print(body)
 
+    
     print("\n=== ISOLATED VALIDATION ===")
     passed, output = validate_candidate(candidate, scenario)
     print(output)
 
-    if passed:
+    if not passed and patch_source == "ai":
+        print(
+            "WARNING: AI patch failed validation. "
+            "Trying the predefined scenario fallback."
+        )
+
+        fallback_body = scenario["example"]
+        fallback_candidate = replace_function_body(
+            original, scenario["function"], fallback_body
+        )
+
+        print("Fallback candidate:")
+        print(fallback_body)
+        print("\n=== FALLBACK ISOLATED VALIDATION ===")
+
+        fallback_passed, fallback_output = validate_candidate(
+            fallback_candidate, scenario
+        )
+        print(fallback_output)
+
+        if fallback_passed:
+            body = fallback_body
+            candidate = fallback_candidate
+            patch_source = "fallback"
+            passed = True
+            print("FALLBACK REPAIR SUCCESS: candidate passed isolated tests.")
+        else:
+            print("REPAIR REJECTED: AI patch and fallback both failed validation.")
+    elif passed:
         print("REPAIR SUCCESS: candidate passed isolated tests.")
     else:
-        print("REPAIR REJECTED: candidate failed validation.")
+        print("REPAIR REJECTED: fallback candidate failed validation.")
+
     print("Original fixture was left unchanged.")
 
     return {
@@ -261,6 +317,7 @@ def repair_incident(client, model, scenario_name, evidence):
         )["fault_category"],
         "repair_success": passed,
         "patch_source": patch_source,
+        "fallback_reason": fallback_reason,
         "patch": body,
     }
 
