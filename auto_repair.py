@@ -11,6 +11,8 @@ import textwrap
 import time
 import traceback
 from pathlib import Path
+from llm_providers.factory import create_provider
+from llm_providers.generate import generate_text
 
 from dotenv import load_dotenv
 from openai import (
@@ -181,8 +183,7 @@ Return the body with indentation relative to the function body: the first statem
 Do not add imports, file access, subprocess, eval, or exec.
 """
 
-    response = client.responses.create(model=model, input=prompt)
-    raw_text = response.output_text or ""
+    raw_text = generate_text(client, model, prompt)
     print("DEBUG: Raw AI patch:", repr(raw_text))
 
     body = clean_patch_text(raw_text)
@@ -329,8 +330,10 @@ def main():
         print("Usage: python auto_repair.py --auto")
         return
 
-    if not os.getenv("OPENAI_API_KEY"):
-        print("ERROR: OPENAI_API_KEY is missing. Check your .env file.")
+    try:
+        client, model = create_provider()
+    except ValueError as exc:
+        print(f"ERROR: {exc}")
         return
 
     client = OpenAI()

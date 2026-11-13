@@ -1,19 +1,30 @@
 
+from types import SimpleNamespace
+
 from auto_repair import repair_incident
 
 
-class FakeResponse:
-    output_text = "definitely not valid python !!!"
-
-
-class FakeResponses:
+class FakeCompletions:
     def create(self, **kwargs):
-        return FakeResponse()
+        return SimpleNamespace(
+            choices=[
+                SimpleNamespace(
+                    message=SimpleNamespace(
+                        content="definitely not valid python !!!"
+                    )
+                )
+            ]
+        )
+
+
+class FakeChat:
+    def __init__(self):
+        self.completions = FakeCompletions()
 
 
 class FakeClient:
     def __init__(self):
-        self.responses = FakeResponses()
+        self.chat = FakeChat()
 
 
 def test_malformed_ai_response_uses_fallback():

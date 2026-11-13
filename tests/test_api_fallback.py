@@ -1,25 +1,24 @@
 
 from openai import APIConnectionError
-
 from auto_repair import repair_incident
 
 
-class FakeResponses:
+class FakeCompletions:
     def create(self, **kwargs):
-        request = type(
-            "Request",
-            (),
-            {"url": "https://api.openai.com/v1/responses"},
-        )()
         raise APIConnectionError(
             message="Simulated connection failure",
-            request=request,
+            request=None,
         )
+
+
+class FakeChat:
+    def __init__(self):
+        self.completions = FakeCompletions()
 
 
 class FakeClient:
     def __init__(self):
-        self.responses = FakeResponses()
+        self.chat = FakeChat()
 
 
 def test_api_connection_error_uses_validated_fallback():
