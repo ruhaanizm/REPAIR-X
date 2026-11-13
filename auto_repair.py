@@ -273,6 +273,7 @@ def repair_incident(client, model, scenario_name, evidence):
     print(output)
 
     if not passed and patch_source == "ai":
+        fallback_reason = "ai_patch_failed_validation"
         print(
             "WARNING: AI patch failed validation. "
             "Trying the predefined scenario fallback."
@@ -299,6 +300,7 @@ def repair_incident(client, model, scenario_name, evidence):
             passed = True
             print("FALLBACK REPAIR SUCCESS: candidate passed isolated tests.")
         else:
+            fallback_reason += "; fallback_patch_failed_validation"
             print("REPAIR REJECTED: AI patch and fallback both failed validation.")
     elif passed:
         print("REPAIR SUCCESS: candidate passed isolated tests.")
