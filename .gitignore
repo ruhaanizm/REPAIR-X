@@ -8,3 +8,5 @@ auto_repair_report.json
 
 # Local experiment results
 repair_experiments.jsonl
+
+benchmark_results.jsonl
