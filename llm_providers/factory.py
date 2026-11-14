@@ -46,4 +46,18 @@ def create_provider(provider_name=None):
         )
         return client, model
 
-    raise ValueError(f"Unsupported LLM provider: {provider}")
+    
+    if provider == "groq":
+        api_key = os.getenv("GROQ_API_KEY")
+        model = os.getenv("GROQ_MODEL", "qwen/qwen3.8-27b")
+
+        if not api_key:
+            raise ValueError("GROQ_API_KEY is missing.")
+
+        client = OpenAI(
+            api_key=api_key,
+            timeout=REQUEST_TIMEOUT,
+            max_retries=MAX_RETRIES,
+            base_url="https://api.groq.com/openai/v1",
+        )
+        return client, model
