@@ -11,21 +11,21 @@ import textwrap
 import time
 import traceback
 from pathlib import Path
-from llm_providers.factory import create_provider
-from llm_providers.generate import generate_text
+from experiment_tracker import save_experiment
 
 from dotenv import load_dotenv
 from openai import (
-    OpenAI,
     APIConnectionError,
     APITimeoutError,
     APIStatusError,
     RateLimitError,
 )
 
-from incident_classifier import classify_fault
-
 load_dotenv()
+
+from llm_providers.factory import create_provider
+from llm_providers.generate import generate_text
+from incident_classifier import classify_fault
 
 ROOT = Path(__file__).resolve().parent
 FIXTURES = ROOT / "fixtures"
@@ -225,8 +225,6 @@ def repair_incident(client, model, scenario_name, evidence):
 
     print(f"\n=== GENERATING PATCH: {scenario_name} ===")
 
-    
-    
     patch_source = "ai"
     fallback_reason = None
 
@@ -263,12 +261,9 @@ def repair_incident(client, model, scenario_name, evidence):
             original, scenario["function"], body
         )
 
-
-
     print("Candidate patch:")
     print(body)
 
-    
     print("\n=== ISOLATED VALIDATION ===")
     passed, output = validate_candidate(candidate, scenario)
     print(output)
@@ -330,18 +325,20 @@ def main():
         print("Usage: python auto_repair.py --auto")
         return
 
+    # FIX: use the provider selected by LLM_PROVIDER in .env.
+    # (The old code overwrote this with OpenAI() afterwards.)
     try:
         client, model = create_provider()
     except ValueError as exc:
         print(f"ERROR: {exc}")
         return
 
-    client = OpenAI()
-    model = os.getenv("OPENAI_MODEL", "gpt-4.1-mini")
+    provider = os.getenv("LLM_PROVIDER", "openai")
     start_time = time.perf_counter()
     results = []
 
     print("=== REPAIR-X AUTOMATIC REPAIR PIPELINE ===")
+    print(f"Provider: {provider} | Model: {model}")
 
     for fixture_name, fixture_scenario in SCENARIOS.items():
         print(f"\n=== CAPTURING INCIDENT: {fixture_name} ===")
@@ -389,6 +386,7 @@ def main():
     elapsed = time.perf_counter() - start_time
 
     report = {
+        "provider": provider,
         "model": model,
         "incidents_processed": len(results),
         "successful_repairs": sum(
@@ -400,6 +398,12 @@ def main():
 
     report_path = ROOT / "auto_repair_report.json"
     report_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
+    history_path = ROOT / "repair_experiments.jsonl"
+
+    experiment = save_experiment(report, history_path)
+
+    print(f"Experiment ID: {experiment['experiment_id']}")
+    print(f"Experiment history saved to: {history_path}")
 
     print("\n=== FINAL REPORT ===")
     print(json.dumps(report, indent=2))

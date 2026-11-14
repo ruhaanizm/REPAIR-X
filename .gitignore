@@ -5,3 +5,6 @@ __pycache__/
 *.pyc
 repair_history.json
 auto_repair_report.json
+
+# Local experiment results
+repair_experiments.jsonl
