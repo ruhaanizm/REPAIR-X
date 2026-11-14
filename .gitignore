@@ -10,3 +10,5 @@ auto_repair_report.json
 repair_experiments.jsonl
 
 benchmark_results.jsonl
+
+recovery_demo_report.json
