@@ -8,9 +8,18 @@ auto_repair_report.json
 
 # Local experiment results
 repair_experiments.jsonl
-
 benchmark_results.jsonl
-
 recovery_demo_report.json
-
 live_recovery_results.jsonl
+
+# Private or large evaluation run artifacts; curated public summary is tracked
+# as web_assets/evaluation_summary.json instead.
+evaluation_trials.jsonl
+evaluation_manifest_*.json
+evaluation_summary_*.json
+evaluation_summary_*.csv
+evaluation_summary_*.md
+
+# Do not commit deployment secrets
+.streamlit/secrets.toml
+*.local.env

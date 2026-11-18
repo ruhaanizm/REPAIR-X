@@ -1,0 +1,50 @@
+{
+  "batch_id": "2298cd6ffd37484789857f402f0a889c",
+  "protocol": "risk_aware_recovery_v2",
+  "created_utc": "2026-11-15T09:04:09.450652+00:00",
+  "summary": {
+    "total_trials": 300,
+    "distinct_faults": 10,
+    "outcomes": {
+      "ACCEPTED": 300
+    },
+    "providers": {
+      "gemini": {
+        "trials": 100,
+        "accepted": 100,
+        "abstained": 0,
+        "infrastructure_errors": 0,
+        "repair_success_rate_evaluable": 1.0,
+        "repair_success_rate_all_scheduled": 1.0,
+        "mean_latency_s_evaluable": 7.602,
+        "mean_latency_s": 7.602,
+        "median_latency_s_evaluable": 2.498,
+        "mean_repair_attempts": 1
+      },
+      "groq": {
+        "trials": 100,
+        "accepted": 100,
+        "abstained": 0,
+        "infrastructure_errors": 0,
+        "repair_success_rate_evaluable": 1.0,
+        "repair_success_rate_all_scheduled": 1.0,
+        "mean_latency_s_evaluable": 0.683,
+        "mean_latency_s": 0.683,
+        "median_latency_s_evaluable": 0.255,
+        "mean_repair_attempts": 1.01
+      },
+      "openai": {
+        "trials": 100,
+        "accepted": 100,
+        "abstained": 0,
+        "infrastructure_errors": 0,
+        "repair_success_rate_evaluable": 1.0,
+        "repair_success_rate_all_scheduled": 1.0,
+        "mean_latency_s_evaluable": 1.016,
+        "mean_latency_s": 1.016,
+        "median_latency_s_evaluable": 0.935,
+        "mean_repair_attempts": 1
+      }
+    }
+  }
+}
