@@ -23,3 +23,7 @@ evaluation_summary_*.md
 # Do not commit deployment secrets
 .streamlit/secrets.toml
 *.local.env
+
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
