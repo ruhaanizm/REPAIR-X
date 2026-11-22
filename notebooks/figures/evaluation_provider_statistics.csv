@@ -1,0 +1,4 @@
+provider,trials,accepted,abstained,infrastructure_errors,acceptance_pct,mean_s,median_s,p95_s,max_s,std_s,mean_attempts,total_repair_attempts,formatting_corrections,trials_with_formatting_correction
+Groq / Qwen,100,100,0,0,100.000000,0.682890,0.255000,0.699100,31.249000,3.134282,1.010000,101,2,2
+OpenAI,100,100,0,0,100.000000,1.016370,0.934500,1.619600,2.048000,0.265886,1.000000,100,3,3
+Gemini,100,100,0,0,100.000000,7.602490,2.498500,31.806150,64.497000,10.987454,1.000000,100,61,61

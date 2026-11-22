@@ -1,0 +1,10 @@
+REPAIR-X 300-trial notebook provenance
+
+Principal batch: 2298cd6ffd37484789857f402f0a889c
+Original files from REPAIR-X-starter(20261122-084745).zip
+SHA256 evaluation_trials.jsonl (source; NOT included): ed68a6c67ee6e9dab71165ee5127a6b58051b2b1ce500f7ccdcbfa9ed17d7ef8
+SHA256 evaluation_summary_2298cd6f.csv (source; NOT included): 16f0f5678f6db8ffa6d8a4205479cc850b738276a50eda862df72e4b2919dcd5
+SHA256 notebooks/data/evaluation_300_curated.csv: 9e3dffa9e6ec5322f7dd7e0c4653c794737a3120470e4b12b98dd1cefa33f3cf
+Validated: 300 unique trial indices, 10 fault IDs, 3 providers, 100 trials/provider, 300 accepted, 301 repair attempts.
+Source raw JSONL contained 334 rows from multiple batches; only 300 rows from the principal batch were curated.
+No generated patches, user prompts, traceback text, personal paths, credentials, or secrets exported.
